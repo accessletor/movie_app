@@ -14,19 +14,19 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type MovieDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MovieDetail'>;
 
 type Props = {
-  navigation: HomeScreenNavigationProp;
+  navigation: MovieDetailScreenNavigationProp;
 };
 
-const Home: React.FC<Props> = ({ navigation }) => {
+const MovieDetail: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Button
-        title="Pergi ke Modal Detail"
+        title="Kembali"
         onPress={() => {
-          navigation.navigate('MovieDetail');
+          navigation.navigate('Home');
         }}
       />
     </View>
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default MovieDetail;
