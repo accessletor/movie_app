@@ -3,6 +3,7 @@ import { View, Text, FlatList, Image, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useNavigation } from '@react-navigation/native'
+import { Card, Button } from 'react-native-elements'
 import type { Movie } from '../types/app'
 
 const FavoriteScreen = (): JSX.Element => {
@@ -34,81 +35,110 @@ const FavoriteScreen = (): JSX.Element => {
     <TouchableOpacity
       onPress={() => navigation.navigate('MovieDetail', { ...item })}
     >
-      <View style={styles.itemContainer}>
-        <Image
+      <Card containerStyle={styles.cardContainer}>
+        <Card.Image
           source={{
             uri: `https://image.tmdb.org/t/p/w500${item.backdrop_path}`,
           }}
           style={styles.image}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.overview}>{item.overview}</Text>
+          <Card.Title style={styles.title} numberOfLines={2}>
+            {item.title}
+          </Card.Title>
+          <Card.Divider style={styles.divider} />
+          <Text style={styles.overview} numberOfLines={3}>
+            {item.overview}
+          </Text>
+          <Button
+            title="View Details"
+            buttonStyle={styles.button}
+            onPress={() => navigation.navigate('MovieDetail', { ...item })}
+          />
         </View>
-      </View>
+      </Card>
     </TouchableOpacity>
   )
 
   if (favorites.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
+      <View style={[styles.container, styles.centered]}>
         <Text style={styles.emptyText}>No favorite movies found</Text>
+        <Button
+          title="Find Movies"
+          type="outline"
+          onPress={() => navigation.navigate('Home')}
+          containerStyle={styles.buttonContainer}
+        />
       </View>
     )
   }
 
   return (
-    <FlatList
-      data={favorites}
-      renderItem={renderFavoriteItem}
-      keyExtractor={(item) => item.id.toString()}
-      contentContainerStyle={styles.listContainer}
-    />
+    <View style={[styles.container, styles.centered]}>
+      <FlatList
+        data={favorites}
+        renderItem={renderFavoriteItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+      />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    flexDirection: 'row',
-    marginVertical: 10,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff', // White background color
     padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
   },
-  image: {
-    width: 100,
-    height: 150,
-    borderRadius: 10,
-  },
-  textContainer: {
-    flex: 1,
-    paddingLeft: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  overview: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 5,
-  },
-  emptyContainer: {
-    flex: 1,
+  centered: {
     justifyContent: 'center',
     alignItems: 'center',
   },
+  listContainer: {
+    paddingBottom: 10,
+  },
+  cardContainer: {
+    marginBottom: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#f0f0f0', // Light gray card background color
+  },
+  image: {
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
+  textContainer: {
+    padding: 10,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333', // Title text color
+  },
+  divider: {
+    backgroundColor: '#ccc', // Light gray divider color
+    marginVertical: 5,
+  },
+  overview: {
+    fontSize: 14,
+    color: '#666', // Overview text color
+  },
+  button: {
+    backgroundColor: '#ff4500', // Orange button background color
+    marginTop: 10,
+  },
   emptyText: {
     fontSize: 18,
-    color: '#555',
+    color: '#555', // Dark gray empty text color
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  listContainer: {
-    padding: 10,
+  buttonContainer: {
+    marginTop: 10,
+    alignSelf: 'center',
   },
 })
 

@@ -3,7 +3,6 @@ import {
   ScrollView,
   Text,
   View,
-  StatusBar,
   StyleSheet,
   Image,
   TouchableOpacity,
@@ -11,6 +10,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { FontAwesome } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
+import { Card, Divider } from 'react-native-elements'
 import type { MovieListProps, Movie } from '../types/app'
 import MovieList from '../components/movies/MovieList'
 
@@ -135,41 +135,51 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
   }
 
   return (
-    <View style={{ display: 'flex', alignItems: 'center' }}>
-      {backdrop_path && (
-        <Image
-          source={{ uri: imageBaseUrl + backdrop_path }}
-          style={styles.backdropContainer}
-          resizeMode="cover"
-        />
-      )}
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>{title}</Text>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.rating}>⭐ {vote_average}</Text>
-          <TouchableOpacity onPress={isFavorite ? removeFavorite : addFavorite}>
-            {isFavorite ? (
-              <FontAwesome name="heart" size={24} color="red" />
-            ) : (
-              <FontAwesome name="heart-o" size={24} color="black" />
-            )}
-          </TouchableOpacity>
+    <ScrollView>
+      <Card containerStyle={styles.cardContainer}>
+        {backdrop_path && (
+          <View style={styles.backdropContainer}>
+            <Image
+              source={{ uri: imageBaseUrl + backdrop_path }}
+              style={styles.backdropImage}
+              resizeMode="cover"
+            />
+            <Text style={styles.title}>{title}</Text>
+            <View style={styles.ratingContainer}>
+              <Text style={styles.rating}>⭐ {vote_average}</Text>
+              <TouchableOpacity
+                style={styles.favoriteButton}
+                onPress={isFavorite ? removeFavorite : addFavorite}
+              >
+                {isFavorite ? (
+                  <FontAwesome name="heart" size={24} color="red" />
+                ) : (
+                  <FontAwesome name="heart-o" size={24} color="white" />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+        <Divider style={styles.divider} />
+        <Text style={styles.overview}>{overview}</Text>
+        <Divider style={styles.divider} />
+        <View style={styles.detailsContainer}>
+          <View style={styles.detailItem}>
+            <Text style={styles.label}>Popularity</Text>
+            <Text style={styles.value}>{popularity}</Text>
+          </View>
+          <Divider style={styles.divider} />
+          <View style={styles.detailItem}>
+            <Text style={styles.label}>Language</Text>
+            <Text style={styles.value}>{original_language}</Text>
+          </View>
+          <Divider style={styles.divider} />
+          <View style={styles.detailItem}>
+            <Text style={styles.label}>Release Date</Text>
+            <Text style={styles.value}>{release_date}</Text>
+          </View>
         </View>
-      </View>
-      <Text style={styles.overview}>{overview}</Text>
-      <View style={styles.container}>
-        <View style={styles.isi}>
-          <Text style={styles.label}>Popularitas</Text>
-          <Text style={styles.value}>{popularity}</Text>
-        </View>
-        <View style={styles.isi}>
-          <Text style={styles.label}>Bahasa</Text>
-          <Text style={styles.value}>{original_language}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.releaseDate}>{release_date}</Text>
-      <ScrollView>
+        <Divider style={styles.divider} />
         <View style={styles.movieListsContainer}>
           {movieLists.map((movieList) => (
             <MovieList
@@ -179,76 +189,90 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
               key={movieList.title}
             />
           ))}
-          <StatusBar translucent={false} />
         </View>
-      </ScrollView>
-    </View>
+      </Card>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  cardContainer: {
+    borderRadius: 15,
+    marginHorizontal: 10,
+    elevation: 5,
+  },
   backdropContainer: {
-    width: '100%',
-    height: 200,
     position: 'relative',
   },
-  textContainer: {
-    position: 'absolute',
-    top: 130,
-    left: 10,
+  backdropImage: {
+    width: '100%',
+    height: 300,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
   },
   title: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#fff',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    position: 'absolute',
+    top: 20,
+    right: 20,
   },
   rating: {
-    fontSize: 18,
-    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
     marginRight: 10,
   },
-  overview: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: '#807777',
+  favoriteButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    padding: 10,
+    borderRadius: 20,
   },
-  container: {
+  overview: {
+    fontSize: 16,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    textAlign: 'justify',
+  },
+  detailsContainer: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
+  detailItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#f0f0f0',
     marginBottom: 10,
   },
-  isi: {
-    flex: 1,
-    alignItems: 'center',
-  },
   label: {
-    fontSize: 18,
-    color: '#4d62eb',
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    color: '#333',
   },
   value: {
     fontSize: 16,
-    color: '#323a6b',
-    marginBottom: 5,
-  },
-  releaseDate: {
-    fontSize: 18,
-    color: '#f52c40',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#666',
   },
   movieListsContainer: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
+  divider: {
+    marginVertical: 15,
+    backgroundColor: '#ccc',
   },
 })
 

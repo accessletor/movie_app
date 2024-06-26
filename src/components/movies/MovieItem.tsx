@@ -1,16 +1,31 @@
 import React from 'react'
-import { ImageBackground, Text, StyleSheet, View, TouchableOpacity } from 'react-native'
+import {
+  ImageBackground,
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+} from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { MovieItemProps } from '../../types/app'
 import { useNavigation, StackActions } from '@react-navigation/native'
 
 const MovieItem = ({ movie, size, coverType }: MovieItemProps): JSX.Element => {
-    const navigation = useNavigation()
- const pushAction = StackActions.push('MovieDetail', { id: movie.id, popularity: movie.popularity, original_language: movie.original_language, backdrop_path: movie.backdrop_path, title: movie.title, overview: movie.overview, vote_average: movie.vote_average, release_date: movie.release_date })
+  const navigation = useNavigation()
+  const pushAction = StackActions.push('MovieDetail', {
+    id: movie.id,
+    popularity: movie.popularity,
+    original_language: movie.original_language,
+    backdrop_path: movie.backdrop_path,
+    title: movie.title,
+    overview: movie.overview,
+    vote_average: movie.vote_average,
+    release_date: movie.release_date,
+  })
   return (
     <TouchableOpacity
-    onPress={() => {
+      onPress={() => {
         navigation.dispatch(pushAction)
       }}
     >
