@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, FlatList } from 'react-native'
 import type { MovieListProps, Movie } from '../../types/app'
-import { API_ACCESS_TOKEN } from '@env';
+import { API_ACCESS_TOKEN } from '@env'
 import MovieItem from './MovieItem'
 // Tambahkan code di bawah
 import { useNavigation, StackActions } from '@react-navigation/native'
 
 const coverImageSize = {
-    backdrop: {
-      width: 280,
-      height: 160,
-    },
-    poster: {
-      width: 100,
-      height: 160,
-    },
-  }
+  backdrop: {
+    width: 280,
+    height: 160,
+  },
+  poster: {
+    width: 100,
+    height: 160,
+  },
+}
 
-  const MovieList = ({ title, path, coverType }: MovieListProps): JSX.Element => {
-    const [movies, setMovies] = useState<Movie[]>([])
-  
-    useEffect(() => {
-      getMovieList()
-    }, [])
+const MovieList = ({ title, path, coverType }: MovieListProps): JSX.Element => {
+  const [movies, setMovies] = useState<Movie[]>([])
+
+  useEffect(() => {
+    getMovieList()
+  }, [])
 
   const getMovieList = (): void => {
     const url = `https://api.themoviedb.org/3/${path}`

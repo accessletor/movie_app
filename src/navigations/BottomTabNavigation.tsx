@@ -4,7 +4,9 @@ import { Feather } from '@expo/vector-icons'
 // import Home from '../screens/Home'
 import HomeStackNavigation from './HomeStackNavigation'
 import Search from '../screens/Search'
-import Favorite from '../screens/Favorite'
+//import Favorite from '../screens/Favorite'
+//import FavoriteList from '../screens/favoriteList'
+import FavoriteScreen from './../screens/Favorite'
 
 const Tab = createBottomTabNavigator()
 
@@ -12,8 +14,8 @@ const BottomTabNavigator = (): JSX.Element => (
   <Tab.Navigator>
     <Tab.Screen
       name="Home"
-    //   component={Home}
-    component={HomeStackNavigation}
+      //   component={Home}
+      component={HomeStackNavigation}
       options={{
         tabBarIcon: ({ color }) => (
           <Feather name="home" size={28} color={color} />
@@ -33,7 +35,7 @@ const BottomTabNavigator = (): JSX.Element => (
     />
     <Tab.Screen
       name="Favorite"
-      component={Favorite}
+      component={FavoriteScreen}
       options={{
         tabBarIcon: ({ color }) => (
           <Feather name="heart" size={28} color={color} />

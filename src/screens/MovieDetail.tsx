@@ -1,127 +1,18 @@
-// import React from 'react'
-// import { Text, View } from 'react-native'
-
-// const MovieDetail = ({ route }: any): JSX.Element => {
-//   const { id } = route.params
-
-//   return (
-//     <View
-//       style={{
-//         display: 'flex',
-//         alignItems: 'center',
-//         marginTop: 32,
-//       }}
-//     >
-//       <Text style={{ fontSize: 30 }}>Movie ID: {id}</Text>
-//     </View>
-//   )
-// }
-
-// export default MovieDetail
-
-// import React, { useEffect, useState } from 'react';
-// import { Text, View, Image, ScrollView, StyleSheet, Dimensions } from 'react-native';
-// import { API_ACCESS_TOKEN } from '@env';
-
-// const windowWidth = Dimensions.get('window').width;
-
-// const MovieDetail = ({ route }: any): JSX.Element => {
-//   const { id } = route.params;
-//   const [movie, setMovie] = useState<any>(null);
-
-//   useEffect(() => {
-//     fetchMovieDetail();
-//   }, []);
-
-//   const fetchMovieDetail = async () => {
-//     try {
-//       const response = await fetch(
-//         `https://api.themoviedb.org/3/movie/${id}?language=en-US&api_key=${API_ACCESS_TOKEN}`
-//       );
-//       const data = await response.json();
-//       setMovie(data);
-//     } catch (error) {
-//       console.error('Error fetching movie detail:', error);
-//     }
-//   };
-
-//   if (!movie) {
-//     return (
-//       <View style={styles.container}>
-//         <Text>Loading...</Text>
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <ScrollView style={styles.container}>
-//       <Image
-//         source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
-//         style={styles.poster}
-//         resizeMode="cover"
-//       />
-//       <View style={styles.details}>
-//         <Text style={styles.title}>{movie.title}</Text>
-//         <Text style={styles.movieId}>Movie ID: {id}</Text>
-//         {movie.vote_average !== undefined && (
-//           <View style={styles.ratingContainer}>
-//             <Text style={styles.rating}>{movie.vote_average.toFixed(1)}</Text>
-//           </View>
-//         )}
-//         <Text style={styles.overview}>{movie.overview}</Text>
-//       </View>
-//     </ScrollView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     paddingHorizontal: 16,
-//     paddingTop: 20,
-//   },
-//   poster: {
-//     height: 400,
-//     borderRadius: 8,
-//     marginBottom: 16,
-//   },
-//   details: {
-//     marginBottom: 20,
-//   },
-//   title: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     marginBottom: 8,
-//   },
-//   movieId: {
-//     fontSize: 18,
-//     marginBottom: 8,
-//   },
-//   ratingContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: 8,
-//   },
-//   rating: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     color: '#FFD700',
-//     marginRight: 8,
-//   },
-//   overview: {
-//     fontSize: 16,
-//     lineHeight: 24,
-//   },
-// });
-
-// export default MovieDetail;
-
-
-import React from 'react';
-import { ScrollView, Text, View, StatusBar, StyleSheet, Image } from 'react-native'; // tambahkan Image di sini
-import type { MovieListProps } from '../types/app';
-import MovieList from '../components/movies/MovieList';
+import React, { useEffect, useState } from 'react'
+import {
+  ScrollView,
+  Text,
+  View,
+  StatusBar,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { FontAwesome } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
+import type { MovieListProps, Movie } from '../types/app'
+import MovieList from '../components/movies/MovieList'
 
 const movieLists: MovieListProps[] = [
   {
@@ -129,31 +20,123 @@ const movieLists: MovieListProps[] = [
     path: 'movie/popular?language=en-US&page=1',
     coverType: 'poster',
   },
-];
+]
 
 interface MovieDetailProps {
   route: {
     params: {
-      id: string;
-      title: string;
-      overview: string; // tambahkan overview di sini
-      backdrop_path: string; // tambahkan backdrop_path di sini
-    };
-  };
+      id: number
+      title: string
+      overview: string
+      backdrop_path: string
+      vote_average: number
+      release_date: string
+      popularity: number
+      original_language: string
+    }
+  }
 }
 
 const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
-  const { title, overview, vote_average, release_date, backdrop_path, popularity, original_language } = route.params;
-  const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
+  const navigation = useNavigation()
+
+  if (!route || !route.params) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Movie data is not available</Text>
+      </View>
+    )
+  }
+
+  const {
+    id,
+    title,
+    overview,
+    vote_average,
+    release_date,
+    backdrop_path,
+    popularity,
+    original_language,
+  } = route.params
+
+  const imageBaseUrl = 'https://image.tmdb.org/t/p/w500'
+
+  const [isFavorite, setIsFavorite] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (id !== undefined) {
+      checkIsFavorite(id)
+    }
+  }, [id])
+
+  const addFavorite = async () => {
+    const movie = {
+      id,
+      title,
+      overview,
+      backdrop_path,
+      vote_average,
+      release_date,
+      popularity,
+      original_language,
+    }
+    await addFavoriteToStorage(movie)
+  }
+
+  const removeFavorite = async () => {
+    await removeFavoriteFromStorage(id)
+    navigation.navigate('Home') // Navigasi ke layar Home setelah favorit dihapus
+  }
+
+  const addFavoriteToStorage = async (movie: Movie): Promise<void> => {
+    try {
+      const initialData: string | null =
+        await AsyncStorage.getItem('@FavoriteList')
+      let favMovieList: Movie[] = []
+      if (initialData !== null) {
+        favMovieList = [...JSON.parse(initialData), movie]
+      } else {
+        favMovieList = [movie]
+      }
+      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList))
+      setIsFavorite(true)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const removeFavoriteFromStorage = async (id: number): Promise<void> => {
+    try {
+      const initialData: string | null =
+        await AsyncStorage.getItem('@FavoriteList')
+      if (initialData !== null) {
+        const favMovieList: Movie[] = JSON.parse(initialData)
+        const updatedList = favMovieList.filter((movie) => movie.id !== id)
+        await AsyncStorage.setItem('@FavoriteList', JSON.stringify(updatedList))
+        setIsFavorite(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const checkIsFavorite = async (id: number) => {
+    try {
+      const initialData: string | null =
+        await AsyncStorage.getItem('@FavoriteList')
+      if (initialData !== null) {
+        const favMovieList: Movie[] = JSON.parse(initialData)
+        const isFav = favMovieList.some((movie) => movie.id === id)
+        setIsFavorite(isFav)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
-    <View
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-           
-           {backdrop_path && (
+    <View style={{ display: 'flex', alignItems: 'center' }}>
+      {backdrop_path && (
         <Image
           source={{ uri: imageBaseUrl + backdrop_path }}
           style={styles.backdropContainer}
@@ -161,22 +144,30 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
         />
       )}
       <View style={styles.textContainer}>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.rating}>⭐ {vote_average}</Text>
-            </View>
+        <Text style={styles.title}>{title}</Text>
+        <View style={styles.ratingContainer}>
+          <Text style={styles.rating}>⭐ {vote_average}</Text>
+          <TouchableOpacity onPress={isFavorite ? removeFavorite : addFavorite}>
+            {isFavorite ? (
+              <FontAwesome name="heart" size={24} color="red" />
+            ) : (
+              <FontAwesome name="heart-o" size={24} color="black" />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
       <Text style={styles.overview}>{overview}</Text>
       <View style={styles.container}>
-      <View style={styles.isi}>
-        <Text style={styles.label}>Popularitas</Text>
-        <Text style={styles.value}>{popularity}</Text>
+        <View style={styles.isi}>
+          <Text style={styles.label}>Popularitas</Text>
+          <Text style={styles.value}>{popularity}</Text>
+        </View>
+        <View style={styles.isi}>
+          <Text style={styles.label}>Bahasa</Text>
+          <Text style={styles.value}>{original_language}</Text>
+        </View>
       </View>
-      <View style={styles.isi}>
-        <Text style={styles.label}>Bahasa</Text>
-        <Text style={styles.value}>{original_language}</Text>
-      </View>
-    </View>
-      
-      {/* <Text style={{ fontSize: 20 }}>Movie ID: {id}</Text> */}
+
       <Text style={styles.releaseDate}>{release_date}</Text>
       <ScrollView>
         <View style={styles.movieListsContainer}>
@@ -192,51 +183,38 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
         </View>
       </ScrollView>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
-  // scrollViewContainer: {
-  //   flexGrow: 1,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   paddingTop: 32,
-  // },
-  // container: {
-  //   flex: 1,
-  //   paddingHorizontal: 20,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
   backdropContainer: {
     width: '100%',
     height: 200,
     position: 'relative',
   },
-  backdrop: {
-    width: '100%',
-    height: '100%',
-  },
   textContainer: {
     position: 'absolute',
     top: 130,
-    left: 10
-  // contoh: padding untuk teks
+    left: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
   },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   rating: {
     fontSize: 18,
     color: 'white',
-    marginTop: 5,
+    marginRight: 10,
   },
   overview: {
     fontSize: 14,
     fontStyle: 'italic',
-    color: '#807777'
+    color: '#807777',
   },
   container: {
     flexDirection: 'row',
@@ -271,8 +249,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    rowGap: 16,
   },
-});
+})
 
-export default MovieDetail;
+export default MovieDetail
