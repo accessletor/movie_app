@@ -1,54 +1,86 @@
-import React, {useState} from 'react';
-import { View, Text, StyleSheet, TextInput, Alert, FlatList, TouchableOpacity } from 'react-native';
-import { Feather } from "@expo/vector-icons";
-import { Movie } from '../../types/app';
-import { API_ACCESS_TOKEN, API_URL } from '@env';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, TextInput, StyleSheet, FlatList, TouchableOpacity, Dimensions, Text, ActivityIndicator } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { API_ACCESS_TOKEN } from '@env';
 import MovieItem from '../movies/MovieItem';
+import type { Movie } from '../../types/app';
+
+const coverImageSize = {
+  width: Dimensions.get('window').width / 3 - 32,
+  height: (Dimensions.get('window').width / 3 - 32) * 1.5,
+};
 
 const KeywordSearch = (): JSX.Element => {
-  const [keyword, setKeyword] = useState<string>('');
+  const [keyword, setKeyword] = useState('');
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const { width } = Dimensions.get('window');
 
-  const handleSubmit = async () => {
-    if (keyword.trim() === '') {
-      Alert.alert('Error', 'Please enter a keyword');
-      return;
-    }
+  useEffect(() => {
+    setMovies([]);
+    setPage(1);
+  }, [keyword]);
+
+  const fetchMovies = useCallback(async (): Promise<void> => {
+    if (!keyword) return;
+
+    setLoading(true);
+    setError(null);
+
+    const url = `https://api.themoviedb.org/3/search/movie?query=${keyword}&page=${page}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_ACCESS_TOKEN}`,
+      },
+    };
 
     try {
-      const response = await fetch(`${API_URL}/search/movie?query=${keyword}`, {
-        headers: {
-          Authorization: `Bearer ${API_ACCESS_TOKEN}`,
-        },
-      });
+      const response = await fetch(url, options);
       const data = await response.json();
-
-      if (data.results) {
-        // Filter movies by original_title
-        const filteredMovies = data.results.filter((movie: Movie) =>
-          movie.original_title.toLowerCase().includes(keyword.toLowerCase())
-        );
-        setMovies(filteredMovies);
+      if (page === 1) {
+        setMovies(data.results);
       } else {
-        console.log('No movie data found.');
+        setMovies((prevMovies) => [...prevMovies, ...data.results]);
       }
+      setPage((prevPage) => prevPage + 1);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      setError('Error fetching movies.');
+    } finally {
+      setLoading(false);
+    }
+  }, [keyword, page]);
+
+  const handleSubmit = (): void => {
+    if (keyword) {
+      setPage(1);
+      fetchMovies();
     }
   };
 
-  const renderMovieItem = ({ item }: { item: Movie }) => (
-    <TouchableOpacity onPress={() => {}}>
-      <View style={styles.movieItem}>
-        <MovieItem
-          movie={item}
-          size={styles.movieImage}
-          coverType="poster"
-        />
-        {/* <Text style={styles.movieTitle}>{item.original_title}</Text> */}
-      </View>
+  const renderMovieItem = ({ item }: { item: Movie }): JSX.Element => (
+    <TouchableOpacity style={styles.movieItemContainer}>
+      <MovieItem 
+        movie={item}
+        size={coverImageSize}
+        coverType="poster" 
+      />
     </TouchableOpacity>
   );
+
+  const renderSeparator = (): JSX.Element => <View style={styles.separator} />;
+
+  const renderFooter = (): JSX.Element | null => {
+    if (!loading) return null;
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="small" color="#0000ff" />
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -60,65 +92,72 @@ const KeywordSearch = (): JSX.Element => {
           onChangeText={setKeyword}
           onSubmitEditing={handleSubmit}
         />
-        <Feather name="search" size={24} color="gray" style={styles.icon} />
+        <FontAwesome name="search" size={20} color="black" style={styles.icon} onPress={handleSubmit} />
       </View>
-      <FlatList
-        data={movies}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderMovieItem}
-        contentContainerStyle={styles.list}
-        numColumns={3}
-        // horizontal={true} // Make the list horizontal
-      />
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : (
+        <FlatList
+          data={movies}
+          renderItem={renderMovieItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.movieList}
+          numColumns={3}
+          ItemSeparatorComponent={renderSeparator}
+          ListFooterComponent={renderFooter}
+          onEndReached={fetchMovies}
+          onEndReachedThreshold={0.1}
+        />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  input: {
-    width: '100%',
-    padding: 12,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 25,
-    marginTop: 15,
+    marginTop: 20,
+    marginHorizontal: 16,
   },
   inputContainer: {
-    position: 'relative',
-    width: '100%',
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 25,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+    height: 50,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 5,
   },
   icon: {
-    marginLeft: 8,
-    position: 'absolute',
-    right: 20,
-    top: '40%',
+    marginLeft: 10,
+    marginRight: 5,
   },
-  list: {
+  movieList: {
+    marginTop: 10,
+  },
+  separator: {
     width: '100%',
+    height: 4,
   },
-  movieItem: {
-    flex: 1,
-    padding: 8,
-    alignItems: 'flex-start',
-    width: '33.33%',
+  movieItemContainer: {
+    margin: 4,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
-  movieTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  loading: {
+    marginTop: 10,
+    alignItems: 'center',
   },
-  movieImage: {
-    width: 100,
-    height: 150,
-    resizeMode: 'contain',
-    marginVertical: 10,
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
 
 export default KeywordSearch;
-
