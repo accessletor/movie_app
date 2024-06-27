@@ -59,9 +59,7 @@ const CategorySearch = (): JSX.Element => {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <>
-        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>Search</Text>
-          </TouchableOpacity>
+        
           {genres.map((genre) => (
             <TouchableOpacity
               key={genre.id}
@@ -77,7 +75,9 @@ const CategorySearch = (): JSX.Element => {
               <Text style={styles.genreLabel}>{genre.name}</Text>
             </TouchableOpacity>
           ))}
-          
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+            <Text style={styles.searchButtonText}>Search</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -91,11 +91,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     paddingHorizontal: 16,
+    // flexGrow: 1,
+    // paddingTop: 16,
+    // paddingHorizontal: 16,
   },
   genreButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: '48%',
+    width: '30%',
     height: 45,
     marginBottom: 8,
     borderRadius: 10,
