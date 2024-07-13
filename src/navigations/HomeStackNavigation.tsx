@@ -41,8 +41,8 @@
 
 // export default HomeStackNavigation
 
-import React from 'react'
-import { View, Text, StyleSheet, Button } from 'react-native'
+import React from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   marginVertical20: {
     marginVertical: 20,
   },
-})
+});
 
 export default function HomeStackNavigation({ navigation }: { navigation: any }): JSX.Element {
   return (
@@ -64,5 +64,5 @@ export default function HomeStackNavigation({ navigation }: { navigation: any })
         onPress={() => navigation.navigate('MovieDetail')}
       />
     </View>
-  )
+  );
 }

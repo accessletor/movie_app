@@ -1,18 +1,18 @@
-import React from 'react'
+import React from 'react';
 import {
   ImageBackground,
   Text,
   StyleSheet,
   View,
   TouchableOpacity,
-} from 'react-native'
-import { FontAwesome } from '@expo/vector-icons'
-import { LinearGradient } from 'expo-linear-gradient'
-import type { MovieItemProps } from '../../types/app'
-import { useNavigation, StackActions } from '@react-navigation/native'
+} from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import type { MovieItemProps } from '../../types/app';
+import { useNavigation, StackActions } from '@react-navigation/native';
 
 const MovieItem = ({ movie, size, coverType }: MovieItemProps): JSX.Element => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const pushAction = StackActions.push('MovieDetail', {
     id: movie.id,
     popularity: movie.popularity,
@@ -22,11 +22,11 @@ const MovieItem = ({ movie, size, coverType }: MovieItemProps): JSX.Element => {
     overview: movie.overview,
     vote_average: movie.vote_average,
     release_date: movie.release_date,
-  })
+  });
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.dispatch(pushAction)
+        navigation.dispatch(pushAction);
       }}
     >
       <ImageBackground
@@ -52,8 +52,8 @@ const MovieItem = ({ movie, size, coverType }: MovieItemProps): JSX.Element => {
         </LinearGradient>
       </ImageBackground>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
     color: 'yellow',
     fontWeight: '700',
   },
-})
+});
 
-export default MovieItem
+export default MovieItem;

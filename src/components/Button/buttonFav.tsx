@@ -1,7 +1,7 @@
 // FavoriteButton.js
-import React, { useState, useEffect } from 'react'
-import { TouchableOpacity, Text, StyleSheet } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import React, { useState, useEffect } from 'react';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Movie = {
   id: number
@@ -12,76 +12,76 @@ type Movie = {
 }
 
 const FavoriteButton = ({ movie }: { movie: Movie }) => {
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    checkFavoriteStatus()
-  }, [])
+    checkFavoriteStatus();
+  }, []);
 
   const checkFavoriteStatus = async () => {
-    const favoriteStatus = await checkIsFavorite(movie.id)
-    setIsFavorite(favoriteStatus)
-  }
+    const favoriteStatus = await checkIsFavorite(movie.id);
+    setIsFavorite(favoriteStatus);
+  };
 
   const addFavorite = async (movie: Movie): Promise<void> => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
-      let favMovieList: Movie[] = []
+        await AsyncStorage.getItem('@FavoriteList');
+      let favMovieList: Movie[] = [];
 
       if (initialData !== null) {
-        favMovieList = [...JSON.parse(initialData), movie]
+        favMovieList = [...JSON.parse(initialData), movie];
       } else {
-        favMovieList = [movie]
+        favMovieList = [movie];
       }
 
-      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList))
-      setIsFavorite(true)
+      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList));
+      setIsFavorite(true);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const removeFavorite = async (id: number): Promise<void> => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
-      let favMovieList: Movie[] = []
+        await AsyncStorage.getItem('@FavoriteList');
+      let favMovieList: Movie[] = [];
 
       if (initialData !== null) {
-        favMovieList = JSON.parse(initialData)
-        favMovieList = favMovieList.filter((movie) => movie.id !== id)
+        favMovieList = JSON.parse(initialData);
+        favMovieList = favMovieList.filter((movie) => movie.id !== id);
       }
 
-      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList))
-      setIsFavorite(false)
+      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList));
+      setIsFavorite(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const checkIsFavorite = async (id: number): Promise<boolean> => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
+        await AsyncStorage.getItem('@FavoriteList');
       if (initialData !== null) {
-        const favMovieList: Movie[] = JSON.parse(initialData)
-        return favMovieList.some((movie) => movie.id === id)
+        const favMovieList: Movie[] = JSON.parse(initialData);
+        return favMovieList.some((movie) => movie.id === id);
       }
-      return false
+      return false;
     } catch (error) {
-      console.log(error)
-      return false
+      console.log(error);
+      return false;
     }
-  }
+  };
 
   const handlePress = () => {
     if (isFavorite) {
-      removeFavorite(movie.id)
+      removeFavorite(movie.id);
     } else {
-      addFavorite(movie)
+      addFavorite(movie);
     }
-  }
+  };
 
   return (
     <TouchableOpacity style={styles.button} onPress={handlePress}>
@@ -89,8 +89,8 @@ const FavoriteButton = ({ movie }: { movie: Movie }) => {
         {isFavorite ? 'Unfavorite' : 'Favorite'}
       </Text>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   button: {
@@ -103,6 +103,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-})
+});
 
-export default FavoriteButton
+export default FavoriteButton;
