@@ -1,39 +1,39 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, FlatList, Image, StyleSheet } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { useNavigation } from '@react-navigation/native'
-import { Card, Button } from 'react-native-elements'
-import type { Movie } from '../types/app'
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { Card, Button } from 'react-native-elements';
+import type { Movie } from '../types/app';
 
 const FavoriteScreen = (): JSX.Element => {
-  const [favorites, setFavorites] = useState<Movie[]>([])
-  const navigation = useNavigation()
+  const [favorites, setFavorites] = useState<Movie[]>([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', fetchFavorites)
-    return unsubscribe
-  }, [navigation])
+    const unsubscribe = navigation.addListener('focus', fetchFavorites);
+    return unsubscribe;
+  }, [navigation]);
 
   const fetchFavorites = async () => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
+        await AsyncStorage.getItem('@FavoriteList');
       if (initialData !== null) {
-        const parsedData: Movie[] = JSON.parse(initialData)
+        const parsedData: Movie[] = JSON.parse(initialData);
         // Filter out any null or undefined items and ensure each movie has an id
-        const validFavorites = parsedData.filter((movie) => movie && movie.id)
-        setFavorites(validFavorites)
+        const validFavorites = parsedData.filter((movie) => movie && movie.id);
+        setFavorites(validFavorites);
       }
     } catch (error) {
-      console.error('Error fetching favorites:', error)
+      console.error('Error fetching favorites:', error);
       // Optionally handle the error (e.g., show a toast or retry mechanism)
     }
-  }
+  };
 
   const renderFavoriteItem = ({ item }: { item: Movie }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('MovieDetail', { ...item })}
+      onPress={() => { navigation.navigate('MovieDetail', { ...item }); }}
     >
       <Card containerStyle={styles.cardContainer}>
         <Card.Image
@@ -53,12 +53,12 @@ const FavoriteScreen = (): JSX.Element => {
           <Button
             title="View Details"
             buttonStyle={styles.button}
-            onPress={() => navigation.navigate('MovieDetail', { ...item })}
+            onPress={() => { navigation.navigate('MovieDetail', { ...item }); }}
           />
         </View>
       </Card>
     </TouchableOpacity>
-  )
+  );
 
   if (favorites.length === 0) {
     return (
@@ -67,11 +67,11 @@ const FavoriteScreen = (): JSX.Element => {
         <Button
           title="Find Movies"
           type="outline"
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => { navigation.navigate('Home'); }}
           containerStyle={styles.buttonContainer}
         />
       </View>
-    )
+    );
   }
 
   return (
@@ -83,8 +83,8 @@ const FavoriteScreen = (): JSX.Element => {
         contentContainerStyle={styles.listContainer}
       />
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -140,6 +140,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: 'center',
   },
-})
+});
 
-export default FavoriteScreen
+export default FavoriteScreen;

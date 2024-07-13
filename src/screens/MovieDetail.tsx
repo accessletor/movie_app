@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
   Text,
@@ -6,21 +6,21 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-} from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { FontAwesome } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
-import { Card, Divider } from 'react-native-elements'
-import type { MovieListProps, Movie } from '../types/app'
-import MovieList from '../components/movies/MovieList'
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { Card, Divider } from 'react-native-elements';
+import type { MovieListProps, Movie } from '../types/app';
+import MovieList from '../components/movies/MovieList';
 
-const movieLists: MovieListProps[] = [
-  {
-    title: 'Recommendation',
-    path: 'movie/popular?language=en-US&page=1',
-    coverType: 'poster',
-  },
-]
+// const movieLists: MovieListProps[] = [
+//   {
+//     title: 'Recommendation',
+//     path: 'movie/popular?language=en-US&page=1',
+//     coverType: 'poster',
+//   },
+// ];
 
 interface MovieDetailProps {
   route: {
@@ -38,14 +38,14 @@ interface MovieDetailProps {
 }
 
 const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   if (!route || !route.params) {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>Movie data is not available</Text>
       </View>
-    )
+    );
   }
 
   const {
@@ -57,17 +57,17 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
     backdrop_path,
     popularity,
     original_language,
-  } = route.params
+  } = route.params;
 
-  const imageBaseUrl = 'https://image.tmdb.org/t/p/w500'
+  const imageBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
-  const [isFavorite, setIsFavorite] = useState<boolean>(false)
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
     if (id !== undefined) {
-      checkIsFavorite(id)
+      checkIsFavorite(id);
     }
-  }, [id])
+  }, [id]);
 
   const addFavorite = async () => {
     const movie = {
@@ -79,60 +79,68 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
       release_date,
       popularity,
       original_language,
-    }
-    await addFavoriteToStorage(movie)
-  }
+    };
+    await addFavoriteToStorage(movie);
+  };
 
   const removeFavorite = async () => {
-    await removeFavoriteFromStorage(id)
-    navigation.navigate('Home') // Navigasi ke layar Home setelah favorit dihapus
-  }
+    await removeFavoriteFromStorage(id);
+    // navigation.navigate('Home'); // Navigasi ke layar Home setelah favorit dihapus
+  };
 
   const addFavoriteToStorage = async (movie: Movie): Promise<void> => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
-      let favMovieList: Movie[] = []
+        await AsyncStorage.getItem('@FavoriteList');
+      let favMovieList: Movie[] = [];
       if (initialData !== null) {
-        favMovieList = [...JSON.parse(initialData), movie]
+        favMovieList = [...JSON.parse(initialData), movie];
       } else {
-        favMovieList = [movie]
+        favMovieList = [movie];
       }
-      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList))
-      setIsFavorite(true)
+      await AsyncStorage.setItem('@FavoriteList', JSON.stringify(favMovieList));
+      setIsFavorite(true);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const removeFavoriteFromStorage = async (id: number): Promise<void> => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
+        await AsyncStorage.getItem('@FavoriteList');
       if (initialData !== null) {
-        const favMovieList: Movie[] = JSON.parse(initialData)
-        const updatedList = favMovieList.filter((movie) => movie.id !== id)
-        await AsyncStorage.setItem('@FavoriteList', JSON.stringify(updatedList))
-        setIsFavorite(false)
+        const favMovieList: Movie[] = JSON.parse(initialData);
+        const updatedList = favMovieList.filter((movie) => movie.id !== id);
+        await AsyncStorage.setItem('@FavoriteList', JSON.stringify(updatedList));
+        setIsFavorite(false);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const checkIsFavorite = async (id: number) => {
     try {
       const initialData: string | null =
-        await AsyncStorage.getItem('@FavoriteList')
+        await AsyncStorage.getItem('@FavoriteList');
       if (initialData !== null) {
-        const favMovieList: Movie[] = JSON.parse(initialData)
-        const isFav = favMovieList.some((movie) => movie.id === id)
-        setIsFavorite(isFav)
+        const favMovieList: Movie[] = JSON.parse(initialData);
+        const isFav = favMovieList.some((movie) => movie.id === id);
+        setIsFavorite(isFav);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
+
+  const movieLists: MovieListProps[] = [
+    {
+      title: 'Recommendations',
+      path: `/movie/${id}/recommendations`,
+      coverType: 'poster',
+    },
+  ];
 
   return (
     <ScrollView>
@@ -192,8 +200,8 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
         </View>
       </Card>
     </ScrollView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -274,6 +282,6 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     backgroundColor: '#ccc',
   },
-})
+});
 
-export default MovieDetail
+export default MovieDetail;
