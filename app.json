@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "movie_app",
+    "name": "movie app",
     "slug": "movie_app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,19 +12,9 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    }
+      "supportsTablet": true
     },
     "android": {
-      "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
